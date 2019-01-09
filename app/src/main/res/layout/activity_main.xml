@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <SurfaceView
+        android:id="@+id/camera_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageView
+        android:id="@+id/button_flash"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="5dp"
+        android:padding="8dp"
+        android:src="@drawable/ic_flash"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button_zoom_in"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Zoom In" />
+
+    <Button
+        android:id="@+id/button_zoom_out"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Zoom Out"
+        app:layout_constraintStart_toEndOf="@id/button_zoom_in" />
+
+    <RelativeLayout
+        android:id="@+id/layout_center"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <View
+            android:id="@+id/animate_view"
+            android:layout_width="5dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="30dp"
+            android:background="#f00" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:rotation="90"
+            android:tint="#ededed"
+            app:srcCompat="@drawable/ic_qr_corner" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tint="#ededed"
+            app:srcCompat="@drawable/ic_qr_corner" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:rotation="180"
+            android:tint="#ededed"
+            app:srcCompat="@drawable/ic_qr_corner" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:rotation="270"
+            android:tint="#ededed"
+            app:srcCompat="@drawable/ic_qr_corner" />
+
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/view_start"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        app:layout_constraintEnd_toStartOf="@id/layout_center"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <View
+        android:id="@+id/view_end"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        app:layout_constraintEnd_toEndOf="parent "
+        app:layout_constraintStart_toEndOf="@id/layout_center" />
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#80000000"
+        app:layout_constraintBottom_toTopOf="@id/layout_center"
+        app:layout_constraintEnd_toStartOf="@id/view_end"
+        app:layout_constraintStart_toEndOf="@id/view_start"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#80000000"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/view_end"
+        app:layout_constraintStart_toEndOf="@id/view_start"
+        app:layout_constraintTop_toBottomOf="@id/layout_center" />
+
+    <TextView
+        android:id="@+id/text_result"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="#fff"
+        android:text="AA"
+        android:textColor="#000"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <Button
+        android:id="@+id/button_recreate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Recreate"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</android.support.constraint.ConstraintLayout>
