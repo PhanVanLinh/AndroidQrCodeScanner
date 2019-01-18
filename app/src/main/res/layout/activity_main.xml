@@ -9,30 +9,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <ImageView
-        android:id="@+id/button_flash"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="5dp"
-        android:padding="8dp"
-        android:src="@drawable/ic_flash"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/button_zoom_in"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Zoom In" />
-
-    <Button
-        android:id="@+id/button_zoom_out"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Zoom Out"
-        app:layout_constraintStart_toEndOf="@id/button_zoom_in" />
-
     <RelativeLayout
         android:id="@+id/layout_center"
         android:layout_width="0dp"
@@ -52,7 +28,7 @@
             android:layout_marginStart="30dp"
             android:layout_marginTop="30dp"
             android:layout_marginBottom="30dp"
-            android:background="#f00" />
+            android:background="@color/colorAccent" />
 
         <ImageView
             android:layout_width="wrap_content"
@@ -121,6 +97,39 @@
         app:layout_constraintStart_toEndOf="@id/view_start"
         app:layout_constraintTop_toBottomOf="@id/layout_center" />
 
+    <ImageView
+        android:id="@+id/image_flash"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="12dp"
+        android:background="@drawable/bg_round_circle"
+        android:padding="8dp"
+        android:src="@drawable/ic_flash"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/image_gallery"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginEnd="12dp"
+        android:background="@drawable/bg_round_circle"
+        android:padding="8dp"
+        android:src="@drawable/ic_gallery"
+        app:layout_constraintEnd_toStartOf="@id/image_flash"
+        app:layout_constraintTop_toTopOf="@id/image_flash" />
+
+    <SeekBar
+        android:id="@+id/seek_bar_zoom"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:background="#80e4e4e4"
+        app:layout_constraintEnd_toEndOf="@id/layout_center"
+        app:layout_constraintStart_toStartOf="@id/layout_center"
+        app:layout_constraintTop_toBottomOf="@id/layout_center" />
+
     <TextView
         android:id="@+id/text_result"
         android:layout_width="match_parent"
@@ -130,13 +139,5 @@
         android:textColor="#000"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent" />
-
-    <Button
-        android:id="@+id/button_recreate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Recreate"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

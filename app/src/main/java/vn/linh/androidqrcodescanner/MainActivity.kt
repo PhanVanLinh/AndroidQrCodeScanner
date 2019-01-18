@@ -4,22 +4,29 @@ import android.Manifest
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Color
 import android.hardware.Camera
 import android.media.MediaActionSound
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.SurfaceHolder
 import android.view.View
+import android.widget.SeekBar
 import android.widget.Toast
 import com.google.android.gms.vision.CameraSource
 import com.google.android.gms.vision.Detector
+import com.google.android.gms.vision.Frame
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main.view.*
 import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
@@ -30,14 +37,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        if (ActivityCompat.checkSelfPermission(
-                this@MainActivity,
-                Manifest.permission.CAMERA
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            Toast.makeText(this, "Enable camera permission and restart the application", Toast.LENGTH_LONG).show()
-        }
+        Toast.makeText(this, "Developer: Make sure you enable all permission in Settings", Toast.LENGTH_LONG).show()
 
         barcodeDetector = BarcodeDetector.Builder(this).setBarcodeFormats(Barcode.QR_CODE).build()
         cameraSource = CameraSource.Builder(this, barcodeDetector).setFacing(CameraSource.CAMERA_FACING_BACK)
@@ -69,12 +69,10 @@ class MainActivity : AppCompatActivity() {
 
             override fun receiveDetections(detections: Detector.Detections<Barcode>) {
                 val qrCodes = detections.detectedItems
-                Log.i("TAG", "receive " + qrCodes.size())
                 if (qrCodes != null && qrCodes.size() > 0) {
                     runOnUiThread {
                         playSound()
                     }
-                    Log.i("TAG", "stop " + qrCodes.valueAt(0).displayValue)
                     runOnUiThread {
                         text_result.visibility = View.VISIBLE
                         text_result.text = qrCodes.valueAt(0).displayValue
@@ -84,42 +82,44 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        button_zoom_in.setOnClickListener {
-            zoomIn()
+        image_flash.setOnClickListener {
+            if (isFlashOn()) {
+                image_flash.drawable.setTint(Color.WHITE)
+                turnFlash(false)
+            } else {
+                image_flash.drawable.setTint(ContextCompat.getColor(this, R.color.colorPrimary))
+                turnFlash(true)
+            }
         }
 
-        button_zoom_out.setOnClickListener {
-            zoomOut()
+        image_gallery.setOnClickListener {
+            pickImage()
         }
 
-        button_flash.setOnClickListener {
-            handleFlash(true)
-        }
+        seek_bar_zoom.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (seekBar != null) {
+                    val maxCameraZoom = getCamera(cameraSource)?.parameters?.maxZoom ?: 0
+                    val zoomLevel = progress.toFloat() / seekBar.max * maxCameraZoom
+                    zoom(zoomLevel.toInt())
+                }
+            }
 
-        button_recreate.button_recreate.setOnClickListener {
-            recreate()
-        }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+        })
     }
 
-    private fun zoomIn() {
-        handleZoom(true)
-    }
 
-    private fun zoomOut() {
-        handleZoom(false)
-    }
-
-    private fun handleZoom(zoomIn: Boolean) {
+    private fun zoom(zoomLevel: Int) {
         camera = getCamera(cameraSource)
         if (camera != null) {
             try {
                 val param = camera?.parameters
-                val zoomLevel = param?.zoom ?: 0
-                if (zoomIn) {
-                    param?.zoom = zoomLevel + 2
-                } else {
-                    param?.zoom = zoomLevel - 2
-                }
+                param?.zoom = zoomLevel
                 camera?.parameters = param
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -128,18 +128,27 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun handleFlash(flashMode: Boolean) {
+    private fun turnFlash(flashMode: Boolean) {
         camera = getCamera(cameraSource)
         if (camera != null) {
             try {
                 val param = camera?.parameters
                 param?.flashMode =
-                        if (!flashMode) Camera.Parameters.FLASH_MODE_TORCH else Camera.Parameters.FLASH_MODE_OFF
+                        if (flashMode) Camera.Parameters.FLASH_MODE_TORCH else Camera.Parameters.FLASH_MODE_OFF
                 camera?.parameters = param
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
+    }
+
+    private fun isFlashOn(): Boolean {
+        camera = getCamera(cameraSource)
+        if (camera != null) {
+            val param = camera?.parameters
+            return param?.flashMode == Camera.Parameters.FLASH_MODE_TORCH
+        }
+        return false
     }
 
     private fun getCamera(cameraSource: CameraSource): Camera? {
@@ -148,7 +157,7 @@ class MainActivity : AppCompatActivity() {
             if (field.type === Camera::class.java) {
                 field.isAccessible = true
                 try {
-                    return field.get(cameraSource) as Camera
+                    return field.get(cameraSource) as Camera?
                 } catch (e: IllegalAccessException) {
                     e.printStackTrace()
                 }
@@ -176,5 +185,43 @@ class MainActivity : AppCompatActivity() {
     private fun playSound() {
         val sound = MediaActionSound()
         sound.play(MediaActionSound.SHUTTER_CLICK)
+    }
+
+    private fun pickImage() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
+        intent.type = "image/*"
+        startActivityForResult(intent, PICK_IMAGE_FOR_SCAN)
+    }
+
+    private fun scanPickedImage(image: Bitmap) {
+        val detections = barcodeDetector.detect(Frame.Builder().setBitmap(image).build())
+        if (detections != null && detections.size() > 0) {
+            runOnUiThread {
+                playSound()
+            }
+            runOnUiThread {
+                text_result.visibility = View.VISIBLE
+                text_result.text = detections.valueAt(0).displayValue
+            }
+            cameraSource.stop()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PICK_IMAGE_FOR_SCAN && resultCode == Activity.RESULT_OK) {
+            val uri = data?.data
+            uri?.let {
+                scanPickedImage(uriToBitmap(it))
+            }
+        }
+    }
+
+    private fun uriToBitmap(uri: Uri): Bitmap {
+        return MediaStore.Images.Media.getBitmap(this.contentResolver, uri)
+    }
+
+    companion object {
+        const val PICK_IMAGE_FOR_SCAN = 100
     }
 }
